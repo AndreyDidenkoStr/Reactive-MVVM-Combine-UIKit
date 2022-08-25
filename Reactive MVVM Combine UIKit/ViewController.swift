@@ -6,39 +6,31 @@
 //
 
 import UIKit
+import Combine
 
 class ViewController: UIViewController, UITextFieldDelegate {
 
-
-
-    @IBOutlet weak var textFieldTwo: UITextField!
     @IBOutlet weak var textFieldOne: UITextField!
     @IBOutlet weak var label: UILabel!
     
-    var textOne: String = " " {
-        didSet {
-            label.text = textOne + textTwo
-        }
-    }
-    var textTwo: String = " " {
-        didSet {
-            label.text = textOne + textTwo
-        }
-    }
-
+    @Published var labelValue: String? = "value"
+    
+    var cancellable: AnyCancellable?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         textFieldOne.delegate = self
-        textFieldTwo.delegate = self
+        
+        self.cancellable = self.$labelValue.receive(on: DispatchQueue.main)
+            .assign(to: \.text, on: self.label)
     }
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        if textField == textFieldOne {
-            textOne = textField.text!
-        } else if textField == textFieldTwo {
-            textTwo = textField.text!
-        }
+        self.labelValue = textField.text
         return true
     }
+    
+    
 }
 
